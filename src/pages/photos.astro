@@ -1,0 +1,80 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const basePath = '/@fs/home/wec/Desktop/astro-photo-gallery/src/assets/';
+const tree = {
+	['/']: {
+		files: [],
+		folders: {},
+	}
+};
+const relativeBasePath = '../assets/';
+const rootPath = basePath;
+
+// const files = import.meta.glob('./*', { eager: true });
+const modules = import.meta.glob('../assets/**/*.jpg');
+for (const path in modules) {
+  // modules[path]().then((mod) => {
+	// 	// const relativeFilePath = filePath.replace(basePath, '');
+  // })
+	
+	let currentFolder = tree['/'];
+	const filePath = path.replace(relativeBasePath, '');
+	const pathParts = filePath.split('/');
+	console.log({pathParts})
+	for (let i = 0; i < pathParts.length; i++) {
+		if (i === (pathParts.length - 1)) {
+			currentFolder.files.push(pathParts[i]);
+		}
+		else {
+			// console.log(currentFolder.folders[pathParts[i]])
+			if (!currentFolder.folders[pathParts[i]]) {
+				currentFolder.folders[pathParts[i]] = {
+					files: [],
+					folders: {},
+				};
+				currentFolder = currentFolder.folders[pathParts[i]];
+			}
+			// currentFolder.folders.push(pathParts[i]);
+			// currentFolder = currentFolder[pathParts[i]];
+		}
+	}
+	// console.log({
+	// 	filePath,
+	// 	pathParts,
+	// 	/*, mod.default.src*/
+	// })
+}
+console.log("\n",{tree})
+
+const {
+	fileTree = tree,
+	message = 'hello worlds',
+} = Astro.props;
+
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+---
+
+<Layout>
+	<p data-tree={fileTree}>photos go here</p>
+	<pre>{JSON.stringify(fileTree)}</pre>
+	<astro-greet data-message={message}>
+		<button>click</button>
+	</astro-greet>
+	<script>
+		class AstroGreet extends HTMLElement {
+			connectedCallback() {
+				const message = this.dataset.message;
+				const button = this.querySelector('button');
+				button?.addEventListener('click', () => {
+					alert(message)
+				})
+			}
+		}
+		customElements.define('astro-greet', AstroGreet);
+	</script>
+	<script type="module">
+		console.log('script tag')
+	</script>
+</Layout>
