@@ -1,11 +1,18 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import { getCollection } from 'astro:content';
+const folders = await getCollection('folders');
+const photos = await getCollection('photos');
+// console.log({folders, photos})
 ---
-
-<Layout>
-	<Welcome />
-</Layout>
+<h1>Folders</h1>
+<ul>
+  {folders.map(folder => (
+    <li>{folder.id}</li>
+  ))}
+</ul>
+<h1>Photos</h1>
+<ul>
+  {photos.map(photo => (
+    <li>{photo.id}</li>
+  ))}
+</ul>

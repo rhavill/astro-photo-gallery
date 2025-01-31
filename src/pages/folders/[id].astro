@@ -1,0 +1,50 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+
+export async function getStaticPaths() {
+  // const folders = await getCollection('folders');
+  const photos = await getCollection('photos');
+  const folders = {};
+  photos.forEach(photo => {
+    console.log(photo.data.folder.id)
+    if (!folders[photo.data.folder.id]) {
+      folders[photo.data.folder.id] = [];
+    }
+    folders[photo.data.folder.id].push(photo);
+  });
+  // console.log(folders)
+	// const staticPaths = [
+  //   {
+  //     params: { id: "arizona" },
+  //     // props: { folders: ["pr1", "pr2"], files: ["1.jpg"] },
+  //   },
+  //   {
+  //     params: { id: "florida" },
+  //     // props: { folders: ["ar1", "ar2"], files: ["2.jpg"] },
+  //   },
+  // ];
+  const staticPaths = Object.keys(folders).map(folder => {
+    return {
+      params: { id: folder },
+      props: { photos: folders[folder] }
+    }
+  });
+	console.log(staticPaths)
+	return staticPaths;
+}
+
+const { id } = Astro.params;
+const { photos } = Astro.props;
+
+---
+<Layout>
+  <h1>{ id } folder</h1>
+  <h1>Photos</h1>
+<ul>
+  {photos.map(photo => (
+    <li>{photo.id}</li>
+  ))}
+</ul>
+</Layout>

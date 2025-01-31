@@ -1,0 +1,69 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+
+export async function getStaticPaths() {
+	const staticPaths = [
+    {
+      params: { album: "ca" },
+      // props: { folders: ["pr1", "pr2"], files: ["1.jpg"] },
+    },
+    {
+      params: { album: "ca/ba" },
+      // props: { folders: ["ar1", "ar2"], files: ["2.jpg"] },
+    },
+  ];
+// staticPaths.push(
+// {
+//       params: { album: "fl" },
+//       // props: { folders: ["ar1", "ar2"], files: ["2.jpg"] },
+//     },
+
+// )
+// console.log('stt',staticPaths)
+	const tree = {
+		['/']: {
+			files: [],
+			folders: {},
+		}
+	};
+	const relativeBasePath = '../assets/';
+	const modules = await import.meta.glob('../assets/**/*.jpg', { eager: true });
+	console.log('modules', modules)
+	for (const path in modules) {	
+		const filePath = path.replace(relativeBasePath, '');
+		const folderPath = filePath.replace(/\/[^\/]+$/,'');
+		const existingPath = staticPaths.find(
+			(path => path?.params?.album === folderPath)
+		);
+		// if (!existingPath) {
+			staticPaths.push({
+				params: { album: filePath}
+			});
+		// }
+	}
+	const allPaths = staticPaths.map(path => path.params.album);
+	for (let i=0; i < staticPaths.length; i++) {
+		staticPaths[i].props = { allPaths };
+	}
+	// console.log(staticPaths)
+	return staticPaths;
+}
+
+const { album } = Astro.params;
+const { allPaths } = Astro.props;
+
+---
+
+<Layout>
+  <h1>hello { album }</h1>
+	<!-- <h2>folders</h2>
+	<ul>
+		{folders.map((folder) => <li>{folder}</li>)}
+	</ul>
+	<h2>files</h2>
+	<ul>
+		{files.map((file) => <li>{file}</li>)}
+	</ul> -->
+	<pre>{JSON.stringify(allPaths, null, 2)}</pre>
+</Layout>
