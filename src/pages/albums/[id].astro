@@ -4,31 +4,31 @@ import Layout from '../../layouts/Layout.astro';
 
 
 export async function getStaticPaths() {
-  // const folders = await getCollection('folders');
+  // const albums = await getCollection('albums');
   const photos = await getCollection('photos');
-  const folders = {};
+  const albums = {};
   photos.forEach(photo => {
-    console.log(photo.data.folder.id)
-    if (!folders[photo.data.folder.id]) {
-      folders[photo.data.folder.id] = [];
+    console.log(photo.data.album.id)
+    if (!albums[photo.data.album.id]) {
+      albums[photo.data.album.id] = [];
     }
-    folders[photo.data.folder.id].push(photo);
+    albums[photo.data.album.id].push(photo);
   });
-  // console.log(folders)
+  // console.log(albums)
 	// const staticPaths = [
   //   {
   //     params: { id: "arizona" },
-  //     // props: { folders: ["pr1", "pr2"], files: ["1.jpg"] },
+  //     // props: { albums: ["pr1", "pr2"], files: ["1.jpg"] },
   //   },
   //   {
   //     params: { id: "florida" },
-  //     // props: { folders: ["ar1", "ar2"], files: ["2.jpg"] },
+  //     // props: { albums: ["ar1", "ar2"], files: ["2.jpg"] },
   //   },
   // ];
-  const staticPaths = Object.keys(folders).map(folder => {
+  const staticPaths = Object.keys(albums).map(album => {
     return {
-      params: { id: folder },
-      props: { photos: folders[folder] }
+      params: { id: album },
+      props: { photos: albums[album] }
     }
   });
 	console.log(staticPaths)
@@ -40,7 +40,7 @@ const { photos } = Astro.props;
 
 ---
 <Layout>
-  <h1>{ id } folder</h1>
+  <h1>{ id } album</h1>
   <h1>Photos</h1>
 <ul>
   {photos.map(photo => (

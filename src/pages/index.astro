@@ -1,18 +1,42 @@
 ---
 import { getCollection } from 'astro:content';
-const folders = await getCollection('folders');
-const photos = await getCollection('photos');
-// console.log({folders, photos})
+import Layout from '../layouts/Layout.astro';
+
+const albums = await getCollection('albums');
+console.log({albums})
 ---
-<h1>Folders</h1>
-<ul>
-  {folders.map(folder => (
-    <li>{folder.id}</li>
-  ))}
-</ul>
-<h1>Photos</h1>
-<ul>
-  {photos.map(photo => (
-    <li>{photo.id}</li>
-  ))}
-</ul>
+<Layout>
+  <div class="albums">
+    {albums.map(album => (
+      <div class="album">
+        <a href={`albums/${album.id}`}>
+          <img src="folder.png" alt={album.data.displayName} width="250" height="250" />
+          <div class="display-name">{album.data.displayName}</div>
+        </a>
+      </div>
+    ))}
+  </div>
+  <style>
+    .albums {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 250px);
+      grid-template-rows: repeat(auto-fill, 250px);
+      grid-gap: 3px;
+    }
+    .album a {
+      color: black;
+      display: flex;
+      font-size: 1.25rem;
+      justify-content: center;
+      align-items: center;
+    }
+    .album :hover {
+      text-decoration: underline;
+    }
+    .display-name {
+      position: absolute;
+      max-width: 200px;
+    }
+  </style>
+</Layout>

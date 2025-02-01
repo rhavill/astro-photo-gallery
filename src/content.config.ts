@@ -1,13 +1,13 @@
 import { defineCollection, reference, z } from 'astro:content';
 import { file } from 'astro/loaders';
 
-// const folders = defineCollection({
-//   loader: file("./src/album/folders.json"),
+// const albums = defineCollection({
+//   loader: file("./src/album/albums.json"),
 // });
-const folders = defineCollection({
+const albums = defineCollection({
   loader: async () => {
     const modules = await import.meta.glob('./album/**/*', { eager: true });
-    const folders = Object.keys(modules).map(
+    const albums = Object.keys(modules).map(
       path => {
         const matches = path.match(/^\.\/album\/([^\/]+)/)
         return {
@@ -16,8 +16,8 @@ const folders = defineCollection({
         };
       }
     );
-    console.log({modules, folders})
-    return folders;
+    // console.log({modules, albums})
+    return albums;
   },
   schema: z.object({
     id: z.string(),
@@ -41,10 +41,10 @@ const photos = defineCollection({
     const photos = Object.keys(modules).map(
       path => {
         const matches = path.match(/^\.\/album\/([^\/]+)/)
-        return { id: path, folder: matches[1] };
+        return { id: path, album: matches[1] };
       }
     );
-    console.log({modules, photos})
+    // console.log({modules, photos})
     // console.log('modules', modules)
       // const response = await fetch("https://restphotos.com/v3.1/all");
     // const data = await response.json();
@@ -57,7 +57,7 @@ const photos = defineCollection({
   },
   schema: z.object({
     id: z.string(),
-    folder: reference('folders'),
+    album: reference('albums'),
   })
 });
-export const collections = { folders, photos };
+export const collections = { albums, photos };
