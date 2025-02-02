@@ -3,50 +3,32 @@ import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
 
-async function getPhotos(albumId: string) {
-  // 1. List all album files from collections path
-  let images = import.meta.glob<{ default: ImageMetadata }>(
-    // "/src/content/albums/**/*.{jpeg,jpg}"
-    "/src/album/**/*"
-  );
-
-  // 2. Filter images by albumId
-  images = Object.fromEntries(
-    Object.entries(images).filter(([key]) => key.includes(albumId))
-  );
-
-  // 3. Images are promises, so we need to resolve the glob promises
-  const resolvedImages = await Promise.all(
-    Object.values(images).map((image) => image().then((mod) => mod.default))
-  );
-
-  return resolvedImages;
-}
-
 export async function getStaticPaths() {
   const albums = await getCollection('albums');
+  const photosCollection = await getCollection('photos');
+  // console.log('photosCollection', photosCollection[0])
   const staticPaths = albums.map( album => {
+    const albumPhotos = photosCollection.filter(photo => album.id === photo.data.album.id);
     return {
       params: { id: album.id },
-      props: { album},
+      props: { album, photos: albumPhotos },
     }
   });
 	return staticPaths;
 }
 
 const { id } = Astro.params;
-const { album } = Astro.props;
-const photos = await getPhotos(id);
+const { album, photos } = Astro.props;
 
 ---
 <Layout>
   <h1>{ album.data.displayName }</h1>
   <div class="photos">
     {photos.map(photo => {
-      const matches = photo.src.match(/\/([^\/]+)\?/);
+      const matches = photo.data.src.match(/\/([^\/]+)\?/);
       // console.log({photo, id: matches[1]})
       let width, height;
-      const isLandscape = photo.width > photo.height;
+      const isLandscape = photo.data.width > photo.data.height;
       if (isLandscape) {
         width = 250;
       }
@@ -57,7 +39,7 @@ const photos = await getPhotos(id);
         <div class="photo">
           <a href={`/photos/${matches[1]}`}>
             <Image
-              src={photo}
+              src={photo.data}
               alt={album.data.displayName}
               width={width}
               height={height}
