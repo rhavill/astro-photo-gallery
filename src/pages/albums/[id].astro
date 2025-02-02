@@ -1,50 +1,75 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
 
+async function getPhotos(albumId: string) {
+  // 1. List all album files from collections path
+  let images = import.meta.glob<{ default: ImageMetadata }>(
+    // "/src/content/albums/**/*.{jpeg,jpg}"
+    "/src/album/**/*"
+  );
+
+  // 2. Filter images by albumId
+  images = Object.fromEntries(
+    Object.entries(images).filter(([key]) => key.includes(albumId))
+  );
+
+  // 3. Images are promises, so we need to resolve the glob promises
+  const resolvedImages = await Promise.all(
+    Object.values(images).map((image) => image().then((mod) => mod.default))
+  );
+
+  return resolvedImages;
+}
 
 export async function getStaticPaths() {
-  // const albums = await getCollection('albums');
-  const photos = await getCollection('photos');
-  const albums = {};
-  photos.forEach(photo => {
-    console.log(photo.data.album.id)
-    if (!albums[photo.data.album.id]) {
-      albums[photo.data.album.id] = [];
-    }
-    albums[photo.data.album.id].push(photo);
-  });
-  // console.log(albums)
-	// const staticPaths = [
-  //   {
-  //     params: { id: "arizona" },
-  //     // props: { albums: ["pr1", "pr2"], files: ["1.jpg"] },
-  //   },
-  //   {
-  //     params: { id: "florida" },
-  //     // props: { albums: ["ar1", "ar2"], files: ["2.jpg"] },
-  //   },
-  // ];
-  const staticPaths = Object.keys(albums).map(album => {
+  const albums = await getCollection('albums');
+  const staticPaths = albums.map( album => {
     return {
-      params: { id: album },
-      props: { photos: albums[album] }
+      params: { id: album.id },
+      props: { album},
     }
   });
-	console.log(staticPaths)
 	return staticPaths;
 }
 
 const { id } = Astro.params;
-const { photos } = Astro.props;
+const { album } = Astro.props;
+const photos = await getPhotos(id);
 
 ---
 <Layout>
-  <h1>{ id } album</h1>
-  <h1>Photos</h1>
-<ul>
-  {photos.map(photo => (
-    <li>{photo.id}</li>
-  ))}
-</ul>
+  <h1>{ album.data.displayName }</h1>
+  <div class="photos">
+    {photos.map(photo => {
+      let width, height;
+      const isLandscape = photo.width > photo.height;
+      if (isLandscape) {
+        width = 250;
+      }
+      else {
+        height = 250;
+      }
+      return (
+        <div class="photo">
+          <Image src={photo} alt={album.data.displayName} width={width} height={height} />
+        </div>
+      )
+    })}
+  </div>
+  <style>
+    .photos {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 250px);
+      grid-template-rows: repeat(auto-fill, 250px);
+      grid-gap: 3px;
+    }
+    .photo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
 </Layout>
