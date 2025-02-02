@@ -20,4 +20,23 @@ const albums = defineCollection({
   }),
 });
 
-export const collections = { albums };
+const photos= defineCollection({
+  loader: async () => {
+    const images = await import.meta.glob('./album/**/*', { eager: true });
+    // const resolvedImages = await Promise.all(
+    //   Object.values(images).map((image) => image().then((mod) => mod.default))
+    // );
+    const photos = Object.keys(images).map(key => ({
+      id: key,
+      ...images[key].default,
+    }));
+    // console.log({photos})
+    return photos;
+  },
+  // schema: z.object({
+  //   id: z.string(),
+  //   displayName: z.string(),
+  // }),
+});
+
+export const collections = { albums, photos };

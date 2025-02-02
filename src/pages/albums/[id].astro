@@ -43,6 +43,8 @@ const photos = await getPhotos(id);
   <h1>{ album.data.displayName }</h1>
   <div class="photos">
     {photos.map(photo => {
+      const matches = photo.src.match(/\/([^\/]+)\?/);
+      // console.log({photo, id: matches[1]})
       let width, height;
       const isLandscape = photo.width > photo.height;
       if (isLandscape) {
@@ -53,7 +55,14 @@ const photos = await getPhotos(id);
       }
       return (
         <div class="photo">
-          <Image src={photo} alt={album.data.displayName} width={width} height={height} />
+          <a href={`/photos/${matches[1]}`}>
+            <Image
+              src={photo}
+              alt={album.data.displayName}
+              width={width}
+              height={height}
+            />
+          </a>
         </div>
       )
     })}

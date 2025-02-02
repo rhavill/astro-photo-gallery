@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const photos = await getCollection("photos");
+  const paths = photos.map(photo => {
+    const matches = photo.data.src.match(/\/([^\/]+)\?/);
+    return {
+      params: { id: matches[1] },
+      props: { photo },
+    };
+  });
+  return paths;
+}
+
+const { id } = Astro.params;
+const { photo } = Astro.props;
+
+---
+<Layout>
+  <h1>{ id }</h1>
+  <Image src={photo.data} alt={id}/>
+</Layout>
