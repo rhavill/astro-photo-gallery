@@ -1,0 +1,18 @@
+---
+import { getEntry } from "astro:content";
+
+const links = [
+  { href: '/', text: 'Home' },
+];
+const url = Astro.url;
+const matches = url.pathname.match(/\/albums\/([^\/]+)/);
+if (matches && matches[1]) {
+  const album = await getEntry('albums', matches[1]);
+  links.push({ href: `/albums/${album.id}`, text: album?.data.displayName});
+}
+---
+<div class="nav-links">
+  {links.map((link) => (
+    <a href={link.href}>{link.text}</a>
+  ))}
+</div>
