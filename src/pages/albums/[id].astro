@@ -6,7 +6,6 @@ import Layout from '../../layouts/Layout.astro';
 export async function getStaticPaths() {
   const albums = await getCollection('albums');
   const photosCollection = await getCollection('photos');
-  // console.log('photosCollection', photosCollection[0])
   const staticPaths = albums.map( album => {
     const albumPhotos = photosCollection.filter(photo => album.id === photo.data.album.id);
     return {
@@ -22,11 +21,9 @@ const { album, photos } = Astro.props;
 
 ---
 <Layout>
-  <h1>{ album.data.displayName }</h1>
   <div class="photos">
     {photos.map(photo => {
       const matches = photo.data.src.match(/\/([^\/]+)\?/);
-      // console.log({photo, id: matches[1]})
       let width, height;
       const isLandscape = photo.data.width > photo.data.height;
       if (isLandscape) {
@@ -37,7 +34,7 @@ const { album, photos } = Astro.props;
       }
       return (
         <div class="photo">
-          <a href={`/photos/${matches[1]}`}>
+          <a href={`/albums/${id}/${matches[1]}`}>
             <Image
               src={photo.data}
               alt={album.data.displayName}
