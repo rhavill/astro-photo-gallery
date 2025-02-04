@@ -25,6 +25,7 @@ const { photo, widths, sizes } = Astro.props;
 
 ---
 <Layout>
+  <!-- <pre>{JSON.stringify(photo, null, 2)}</pre> -->
   <div class="photo">
     <Image src={photo.data} alt={`${album} photo ${id}`} widths={widths} sizes={sizes} />
   </div>
@@ -35,4 +36,55 @@ const { photo, widths, sizes } = Astro.props;
       justify-content: center;
     }
   </style>
+  <script define:vars={{ photo }}>
+    const onSwipeLeft = () => alert('left', photo.data.nextPhotoId);
+    const onSwipeRight = () => alert('right', photo.data.previousPhotoId);
+
+    function registerSwipe({onSwipeLeft, onSwipeRight}) {
+      let touchstartX = 0;
+      let touchendX = 0;
+      // let hadMultipleTouchPoints = false;
+      let activeTouchEventsCount = 0;
+
+      function checkDirection() {
+        const isLongEnoughSwipe = Math.abs(touchendX - touchstartX) > 50;
+        // const isNotSwipe = hadMultipleTouchPoints;
+        const hasMultipleActiveTouches = activeTouchEventsCount > 1;
+        activeTouchEventsCount--;
+        // hadMultipleTouchPoints = false; // reset value for next touch event cycle
+        alert(`isLongEnoughSwipe ${isLongEnoughSwipe}, hasMultipleActiveTouches ${hasMultipleActiveTouches}`);
+        if (!isLongEnoughSwipe || hasMultipleActiveTouches) {
+          return;
+        }
+        if (touchendX < touchstartX) onSwipeLeft();
+        if (touchendX > touchstartX) onSwipeRight();
+      }
+
+      document.addEventListener('touchstart', e => {
+        touchstartX = e.changedTouches[0].screenX;
+        activeTouchEventsCount++;
+        if (e.changedTouches.length > 1) {
+          // hadMultipleTouchPoints = true;
+        }
+      })
+
+      document.addEventListener('touchmove', e => {
+        if (e.changedTouches.length > 1) {
+          // hadMultipleTouchPoints = true;
+        }
+      })
+
+      document.addEventListener('touchend', e => {
+        touchendX = e.changedTouches[0].screenX;
+        if (e.changedTouches.length > 1) {
+          // hadMultipleTouchPoints = true;
+        }
+        checkDirection();
+      })
+
+    }
+
+    registerSwipe({onSwipeLeft, onSwipeRight});
+    console.log(photo)
+  </script>
 </Layout>
