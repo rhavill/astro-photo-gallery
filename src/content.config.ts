@@ -1,4 +1,4 @@
-import { defineCollection, reference, z } from 'astro:content';
+import { defineCollection, z } from 'astro:content';
 
 const albums = defineCollection({
   loader: async () => {
@@ -20,28 +20,4 @@ const albums = defineCollection({
   }),
 });
 
-const photos= defineCollection({
-  loader: async () => {
-    const images = await import.meta.glob('./album/**/*', { eager: true });
-    const photos = Object.keys(images).map(path => {
-      const matches = path.match(/^\.\/album\/([^\/]+)/);
-      return {
-        id: path,
-        album: matches[1],
-        ...images[path].default,
-      };
-    });
-    // console.log('photos',photos)
-    return photos;
-  },
-  schema: z.object({
-    id: z.string(),
-    album: reference("albums"),
-    src: z.string(),
-    width: z.number(),
-    height: z.number(),
-    format: z.string(),
-  }),
-});
-
-export const collections = { albums, photos };
+export const collections = { albums };
