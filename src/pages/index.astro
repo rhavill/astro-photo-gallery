@@ -3,14 +3,13 @@ import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
 const albums = await getCollection('albums');
-// console.log({albums})
 ---
 <Layout>
   <div class="albums">
     {albums.map(album => (
       <div class="album">
-        <a href={`albums/${album.id}`}>
-          <img src="folder.png" alt={album.data.displayName} width="250" height="250" />
+        <a href={`/photos/albums/${album.id}`}>
+          <img src="/photos/folder.png" alt={album.data.displayName} width="250" height="250" />
           <div class="display-name">{album.data.displayName}</div>
         </a>
       </div>
