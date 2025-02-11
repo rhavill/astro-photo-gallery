@@ -18,7 +18,7 @@ export async function getStaticPaths() {
 const { album } = Astro.props;
 const images = import.meta.glob<{ default: ImageMetadata }>("../../album/**/*");
 const imagePaths = Object.keys(images);
-const thumbnailSize = 175;
+const thumbnailSize = 150;
 ---
 <Layout>
   <div id="gallery">
